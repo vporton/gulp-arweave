@@ -39,7 +39,7 @@ module.exports = function (opts, options) {
 
     // headers['Content-Length'] = contentLength;
 
-    let key = await arweave.wallets.generate();
+    // let key = await arweave.wallets.generate();
 
     try {
       const transaction = await arweave.createTransaction({
@@ -56,9 +56,8 @@ module.exports = function (opts, options) {
       }
     }
     catch(err) {
-        gutil.log(gutil.colors.red('[FAILED]', err, file.path + " -> " + uploadPath));
-        finished(err, null);
-      }
+      gutil.log(gutil.colors.red('[FAILED]', err, file.path + " -> " + uploadPath));
+      finished(err, null);
     }
   });
 };
