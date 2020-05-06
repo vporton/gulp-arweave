@@ -23,6 +23,7 @@
     "test": "mocha"
   },
   "dependencies": {
+    "arweave": "^1.7.0",
     "async": "",
     "event-stream": "*",
     "gulp-util": "~2.2.6",
