@@ -1,23 +1,23 @@
 {
-  "name": "gulp-s3",
-  "version": "0.11.0",
-  "description": "Uploads files to s3",
+  "name": "gulp-arweave",
+  "version": "0.0.1",
+  "description": "Uploads files to arweave",
   "keywords": [
     "gulpplugin",
     "gulp",
-    "s3"
+    "arweave"
   ],
-  "homepage": "https://github.com/nitaigao/gulp-s3",
-  "bugs": "https://github.com/nitaigao/gulp-s3/issues",
+  "homepage": "https://github.com/vporton/gulp-arweave",
+  "bugs": "https://github.com/vporton/gulp-arweave/issues",
   "author": {
-    "name": "Nicholas Kostelnik",
+    "name": "Victor Porton",
     "email": "",
-    "url": "https://github.com/nitaigao"
+    "url": "http://portonvictor.org"
   },
   "main": "./index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/nitaigao/gulp-s3.git"
+    "url": "git://github.com/vporton/gulp-arweave.git"
   },
   "scripts": {
     "test": "mocha"
