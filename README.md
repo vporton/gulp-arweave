@@ -22,6 +22,7 @@ const arweaveInit = {
     host: 'arweave.net',
     port: 443,
     protocol: 'https',
+    jwk: "passwords/arweave-keyfile-XXX.json", // or specify the JWT object here, or use GULP_AIRWEAVE_JWK_FILE env var
 };
 
 const options = {};
