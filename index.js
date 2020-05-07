@@ -76,7 +76,7 @@ module.exports = function (airweaveInit, options) {
   }
   catch(err) { }
 
-  paths.push(({"": {id: transaction.id}});
+  paths.push(({"": {id: transaction.id}); // TODO: Return hash instead?
 
   return paths;
 };
