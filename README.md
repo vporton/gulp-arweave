@@ -70,6 +70,10 @@ Encoding for uploaded files.
 
 The index file (including its full path on the server).
 
+#### `options.disableManifest`
+
+Disable creating the Path Manifest file.
+
 ## License
 
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)

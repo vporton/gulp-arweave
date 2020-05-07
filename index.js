@@ -78,6 +78,9 @@ module.exports = function (arweaveInit, options) {
     catch(err) { }
   }, async function end() {
     const paths = await Promise.all(fileTransactions);
+
+    if(options.disableManifest) { this.emit('end'); return; }
+
     // We can't use JS Object due to its security bug. So:
     function myToJSON(paths) {
       return '{' + paths.map(([uploadPath, transactionId]) =>
