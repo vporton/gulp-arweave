@@ -21,9 +21,6 @@ module.exports = function (arweaveInit, options) {
   var arweave = Arweave.init(arweaveInit); // TODO: Alternatively pass already initialized arweave
   var regexGeneral = /\.([a-z0-9]{2,})$/i;
 
-  let pathsP = []; // for the Path Manifest
-  let pathsMap = new Map(); // TODO: Remove.
-
   async function uploadFile(file, contentType, uploadPath) {
     return await arweave.createTransaction({
         data: file.contents,
@@ -38,8 +35,6 @@ module.exports = function (arweaveInit, options) {
           throw new Error('HTTP Status Code: ' + response.statusCode);
         } else {
           gutil.log(gutil.colors.green('[SUCCESS]') + ' ' + gutil.colors.grey(file.path) + gutil.colors.green(" -> ") + uploadPath);
-          // pathsP.push(Promise.resolve({uploadPath: {id: transaction.id}}));
-          pathsMap.set(uploadPath, transaction.id);
         }
         return [transaction.id, uploadPath];
       })
@@ -71,26 +66,32 @@ module.exports = function (arweaveInit, options) {
 
     try {
       // TODO: Resolve transation IDs asynchronously.
-      let idP = uploadFile(file, contentType, uploadPath)
+      let pathsP = uploadFile(file, contentType, uploadPath)
         .then(([transactionId, uploadPath]) => {
           this.emit('data', [uploadPath, transactionId]);
           return [uploadPath, transactionId];
         });
-      fileTransactions.push(idP);
+      fileTransactions.push(pathsP);
     }
     catch(err) { }
   }, async function end() {
     const paths = await Promise.all(fileTransactions);
+    // We can't use JS Object due to its security bug. So:
+    function myToJSON(paths) {
+      return paths.map(([uploadPath, transactionId]) =>
+        JSON.stringify(uploadPath) + ':{"id":' + JSON.stringify(transactionId) + '}')
+          .join(",");
+    }
 
     // Path Manifest upload
-    const pathManifestObj = {
-      manifest: "arweave/paths",
-      version: "0.1.0",
+    const pathManifestObj = '{' +
+      'manifest:"arweave/paths",' +
+      'version:"0.1.0",' +
       // "index": { // TODO
       //   "path": "index.html"
       // },
-      paths: paths,
-    }
+      'paths:' + myToJSON(paths) +
+    '}';
     const pathManifest = JSON.stringify(pathManifestObj);
     console.log(pathManifest)
     var manifestFile = new Vinyl({
