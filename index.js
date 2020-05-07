@@ -1,7 +1,6 @@
 'use strict';
 
 var es = require('event-stream');
-// var knox = require('knox');
 const Arweave = require('arweave/node');
 var gutil = require('gulp-util');
 var mime = require('mime');
@@ -17,47 +16,60 @@ module.exports = function (opts, options) {
 
   paths = [] // for the Path Manifest
 
-  return es.map(function (file, finished) {
+  let key = await arweave.wallets.generate();
+
+  function uploadFile(content, contentType) {
+    const transaction = await arweave.createTransaction({
+        data: content,
+    }, opts.jwk)
+      .then(() => {
+        transaction.addTag('Content-Type', contentType);
+        await arweave.transactions.sign(transaction, key);
+        const response = await arweave.transactions.post(transaction);
+        if (response.status != 200) {
+          gutil.log(gutil.colors.red('  HTTP STATUS:', response.statusCode));
+          finished(err, null);
+          throw new Error('HTTP Status Code: ' + res.statusCode);
+        } else {
+          gutil.log(gutil.colors.green('[SUCCESS]') + ' ' + gutil.colors.grey(file.path) + gutil.colors.green(" -> ") + uploadPath);
+          res.resume();
+          finished(null, file);
+          paths.push({uploadPath: {id: transaction.id}}); // FIXME
+        }
+      })
+      .catch(err => {
+        gutil.log(gutil.colors.red('[FAILED]', err, file.path + " -> " + uploadPath));
+        finished(err, null);
+      });
+  }
+
+  /*return*/ es.map(function (file, finished) { // FIXME
     if (!file.isBuffer()) { finished(null, file); return; }
 
     var uploadPath = file.path.replace(file.base, options.uploadPath || '');
     uploadPath = uploadPath.replace(new RegExp('\\\\', 'g'), '/');
-    
+  
+    let contentType;
     // Set content type based on file extension
-    // if (!headers['Content-Type'] && regexGeneral.test(uploadPath)) {
-    //   headers['Content-Type'] = mime.lookup(uploadPath);
-    //   if (options.encoding) {
-    //     headers['Content-Type'] += '; charset=' + options.encoding;
-    //   }
-    // }
-
-    var contentLength = 0;
-    if(file.stat != null)
-      contentLength = file.stat.size; // In case of a stream
-    else
-      contentLength = file.contents.length; // It may be a buffer
-
-    // headers['Content-Length'] = contentLength;
-
-    // let key = await arweave.wallets.generate();
-
-    try {
-      const transaction = await arweave.createTransaction({
-          data: file.contents,
-      }, opts.jwk);
-      if(transaction.id == "") {
-        gutil.log(gutil.colors.red('[FAILED]', "File not uploaded", file.path + " -> " + uploadPath));
-        finished(err, null);
-      } else {
-        gutil.log(gutil.colors.green('[SUCCESS]') + ' ' + gutil.colors.grey(file.path) + gutil.colors.green(" -> ") + uploadPath);
-        res.resume();
-        finished(null, file);
-        paths.push({uploadPath: {id: transaction.od}})
+    if (!headers['Content-Type'] && regexGeneral.test(uploadPath)) {
+      contentType = mime.lookup(uploadPath);
+      if (options.encoding) {
+        contentType += '; charset=' + options.encoding;
       }
     }
-    catch(err) {
-      gutil.log(gutil.colors.red('[FAILED]', err, file.path + " -> " + uploadPath));
-      finished(err, null);
-    }
+
+    uploadFile(file.contents, contentType);
   });
+
+  // Path Manifest upload
+  const pathManifestObj = {
+    manifest: "arweave/paths",
+    version: "0.1.0",
+    // "index": { // TODO
+    //   "path": "index.html"
+    // },
+    paths: paths,
+  }
+  const pathManifest = JSON.stringify(pathManifestObj);
+  uploadFile(pathManifest, 'application/x.arweave-manifest+json')
 };
