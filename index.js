@@ -51,7 +51,7 @@ module.exports = function (arweaveInit, options) {
 
   let fileTransactions = [];
 
-  let outputStream = es.through(function write(file) { // FIXME
+  let outputStream = es.through(function write(file) {
     // Skip processing of directories:
     if (file.isDirectory()) { return; }
     
@@ -109,9 +109,5 @@ module.exports = function (arweaveInit, options) {
     this.emit('end');
   });
 
-  // es.readable(uploadManifest);
-
   return outputStream;
-
-  // FIXME: Merge will not work for gulp 4. merge-stream should be used.
 };
