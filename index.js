@@ -38,7 +38,7 @@ module.exports = function (arweaveInit, options) {
         } else {
           gutil.log(gutil.colors.green('[SUCCESS]') + ' ' + gutil.colors.grey(file.path) + gutil.colors.green(" -> ") + uploadPath);
         }
-        return [transaction.id, uploadPath];
+        return [uploadPath, transaction.id];
       })
       .catch(err => {
         gutil.log(gutil.colors.red('[FAILED]', err, file.path + " -> " + uploadPath));
@@ -69,7 +69,7 @@ module.exports = function (arweaveInit, options) {
 
     try {
       let pathsP = uploadFile(file, contentType, uploadPath)
-        .then(([transactionId, uploadPath]) => {
+        .then(([uploadPath, transactionId]) => {
           this.emit('data', [uploadPath, transactionId]);
           return [uploadPath, transactionId];
         });
