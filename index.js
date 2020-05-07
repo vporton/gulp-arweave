@@ -10,11 +10,11 @@ mime.default_type = 'text/plain';
 
 const readFile = util.promisify(fs.readFile);
 
-module.exports = async function (arweaveInit, options) {
+module.exports = function (arweaveInit, options) {
   options = options || {};
 
   const jwkFile = arweaveInit.jwk || process.env.GULP_AIRWEAVE_JWK_FILE;
-  const jwk = JSON.parse(await readFile(jwkFile));
+  const jwk = JSON.parse(fs.readFileSync(jwkFile));
 
   var arweave = Arweave.init(arweaveInit);
   var regexGeneral = /\.([a-z0-9]{2,})$/i;
@@ -70,23 +70,23 @@ module.exports = async function (arweaveInit, options) {
     }
   });
 
-  // Path Manifest upload
-  const pathManifestObj = {
-    manifest: "arweave/paths",
-    version: "0.1.0",
-    // "index": { // TODO
-    //   "path": "index.html"
-    // },
-    paths: paths,
-  }
-  const pathManifest = JSON.stringify(pathManifestObj);
-  try {
-    uploadFile(pathManifest, 'application/x.arweave-manifest+json')
-  }
-  catch(err) { }
+  // // Path Manifest upload
+  // const pathManifestObj = {
+  //   manifest: "arweave/paths",
+  //   version: "0.1.0",
+  //   // "index": { // TODO
+  //   //   "path": "index.html"
+  //   // },
+  //   paths: paths,
+  // }
+  // const pathManifest = JSON.stringify(pathManifestObj);
+  // try {
+  //   uploadFile(pathManifest, 'application/x.arweave-manifest+json')
+  // }
+  // catch(err) { }
 
-  //paths.push(({"": {id: transaction.id}});
-  pathsMap.set("", transaction.id);
+  // //paths.push(({"": {id: transaction.id}});
+  // pathsMap.set("", transaction.id);
 
-  return pathsMap;
+  // return pathsMap;
 };

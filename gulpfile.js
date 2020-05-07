@@ -8,5 +8,6 @@ const arweaveInit = {
 };
 
 gulp.task('default', () => {
-  gulp.src('./testfiles/**', {read: false}).pipe(gulpAirweave(arweaveInit, {}))
+  gulp.src('./testfiles/**'/*, {read: false}*/).pipe(gulpAirweave(arweaveInit, {}))
+  //.pipe(gulp.dest('dist'))
 });
