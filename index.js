@@ -55,6 +55,7 @@ module.exports = function (arweaveInit, options) {
     if (!file.isBuffer()) { throw Error("Only buffer mode is supported."); }
 
     var uploadPath = file.path.replace(file.base, options.uploadPath || '');
+    uploadPath = uploadPath.replace(new RegExp('^/'), "");
     uploadPath = uploadPath.replace(new RegExp('\\\\', 'g'), '/');
   
     let contentType;
