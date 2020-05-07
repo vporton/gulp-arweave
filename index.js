@@ -67,8 +67,11 @@ module.exports = function (arweaveInit, options) {
     }
 
     try {
-      const transactionId = uploadFile(file, contentType, uploadPath);
-      finished(null, [uploadPath, transactionId]);
+      // TODO: Resolve transation IDs asynchronously.
+      uploadFile(file, contentType, uploadPath)
+        .then(transactionId => {
+          finished(null, [uploadPath, transactionId]);
+        });
     }
     catch(err) {
       finished(err);
