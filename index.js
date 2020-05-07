@@ -106,7 +106,7 @@ module.exports = function (arweaveInit, options) {
   
     // Upload the manifest:
     await uploadFile(manifestFile, 'application/x.arweave-manifest+json', '/')
-      .then(([transactionId, uploadPath]) => {
+      .then(([uploadPath, transactionId]) => {
         this.emit('data', ['/', transactionId])
       });
 
