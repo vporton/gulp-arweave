@@ -33,6 +33,8 @@ gulp.src('./testfiles/**', {read: true})
 
 Or you can pass an already initialized `Arweave` object as `arweaveInit`
 
+The `pipe` returns an `EventStream` of pairs of an Arweave path and transaction ID.
+
 ## API
 
 #### options.uploadPath
