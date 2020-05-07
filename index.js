@@ -9,8 +9,6 @@ var fs = require('fs');
 var util = require('util');
 mime.default_type = 'text/plain';
 
-const readFile = util.promisify(fs.readFile);
-
 module.exports = function (arweaveInit, options) {
   options = options || {};
 
