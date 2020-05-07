@@ -92,7 +92,7 @@ module.exports = function (arweaveInit, options) {
       // },
       'paths:' + myToJSON(paths) +
     '}';
-    const pathManifest = JSON.stringify(pathManifestObj);
+    const pathManifest = pathManifestObj;
     console.log(pathManifest)
     var manifestFile = new Vinyl({
       cwd: '/',
