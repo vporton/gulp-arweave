@@ -24,7 +24,7 @@ module.exports = function (airweaveInit, options) {
         await arweave.transactions.sign(transaction, jwk);
         const response = await arweave.transactions.post(transaction);
         if (response.status != 200 && response.status != 208) {
-          gutil.log(gutil.colors.red('  HTTP STATUS:', response.statusCode));
+          gutil.log(gutil.colors.red('  HTTP STATUS:', response.statusCode)); // TODO: Also show the response body
           throw new Error('HTTP Status Code: ' + response.statusCode);
         } else {
           gutil.log(gutil.colors.green('[SUCCESS]') + ' ' + gutil.colors.grey(file.path) + gutil.colors.green(" -> ") + uploadPath);
@@ -75,4 +75,8 @@ module.exports = function (airweaveInit, options) {
     uploadFile(pathManifest, 'application/x.arweave-manifest+json')
   }
   catch(err) { }
+
+  paths.push(({"": {id: transaction.id}});
+
+  return paths;
 };
