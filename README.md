@@ -15,7 +15,7 @@ npm install --save-dev gulp-arweave
 
 Then, use it in your `gulpfile.js`:
 ```javascript
-var arweave = require('gulp-s3')
+var arweave = require('gulp-arweave')
 var gulp    = require('gulp')
 
 const arweaveInit = {
