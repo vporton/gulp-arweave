@@ -14,6 +14,7 @@ module.exports = function (arweaveInit, options) {
   options = options || {};
 
   const jwkFile = arweaveInit.jwk || process.env.GULP_AIRWEAVE_JWK_FILE;
+  if (typeof jwkFile == 'undefined') throw Error("Arweave JWK key is unspecified. Use GULP_AIRWEAVE_JWK_FILE env war.");
   const jwk = JSON.parse(fs.readFileSync(jwkFile));
 
   var arweave = Arweave.init(arweaveInit);
@@ -48,6 +49,7 @@ module.exports = function (arweaveInit, options) {
   }
 
   return es.map(function (file, finished) { // FIXME
+    console.log("path", file.path) // FIXME
     if (!file.isBuffer()) { finished("Only buffer mode is supported."); return; }
 
     var uploadPath = file.path.replace(file.base, options.uploadPath || '');

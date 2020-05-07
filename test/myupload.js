@@ -12,5 +12,5 @@ const arweaveInit = {
 
 console.log(
     gulp.src('testfiles/**', {read: false})
-        gulpAirweave(arweaveInit, {})
+        .gulpAirweave(arweaveInit, {})
 );
