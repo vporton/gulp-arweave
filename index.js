@@ -12,7 +12,8 @@ module.exports = function (airweaveInit, options) {
   var arweave = Arweave.init(airweaveInit);
   var regexGeneral = /\.([a-z0-9]{2,})$/i;
 
-  paths = [] // for the Path Manifest
+  let paths = []; // for the Path Manifest
+  let pathsMap = new Map();
 
   async function uploadFile(content, contentType) {
     const transaction = await arweave.createTransaction({
@@ -29,6 +30,7 @@ module.exports = function (airweaveInit, options) {
         } else {
           gutil.log(gutil.colors.green('[SUCCESS]') + ' ' + gutil.colors.grey(file.path) + gutil.colors.green(" -> ") + uploadPath);
           paths.push({uploadPath: {id: transaction.id}});
+          pathsMap.set(uploadPath, transaction.id);
         }
       })
       .catch(err => {
@@ -76,7 +78,8 @@ module.exports = function (airweaveInit, options) {
   }
   catch(err) { }
 
-  paths.push(({"": {id: transaction.id}); // TODO: Return hash instead?
+  //paths.push(({"": {id: transaction.id}});
+  pathsMap.set("", transaction.id);
 
-  return paths;
+  return pathsMap;
 };
