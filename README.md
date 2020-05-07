@@ -1,34 +1,36 @@
 # gulp-s3 [![NPM version][npm-image]][npm-url]
 
-Based on https://github.com/nitaigao/gulp-s3
+(Based on https://github.com/nitaigao/gulp-s3)
 
-> s3 plugin for [gulp](https://github.com/wearefractal/gulp)
+> Arweave plugin for [gulp](https://github.com/wearefractal/gulp)
 
 ## Usage
 
-First, install `gulp-s3` as a development dependency:
+First, install `gulp-arweave` as a development dependency:
 
 ```shell
-npm install --save-dev gulp-s3
+npm install --save-dev gulp-arweave
 ```
 
 
 Then, use it in your `gulpfile.js`:
 ```javascript
-var s3   = require('gulp-s3')
-var gulp = require('gulp')
+var arweave = require('gulp-s3')
+var gulp    = require('gulp')
 
-var AWS = {
-  "key":    process.env.AWS_ACCESS_KEY_ID,
-  "secret": process.env.AWS_SECRET_ACCESS_KEY,
-  "bucket": "dev.example.com",
-  "region": "eu-west-1"
-}
+const arweaveInit = {
+    host: 'arweave.net',
+    port: 443,
+    protocol: 'https',
+};
 
-gulp.task('default', () => {
-  gulp.src('./dist/**').pipe(s3(AWS));
-});
+const options = {};
+
+gulp.src('./testfiles/**', {read: true})
+    .pipe(gulpAirweave(arweaveInit, options));
 ```
+
+Or you can pass an already initialized `Arweave` object as `arweaveInit`
 
 ## API
 
@@ -37,56 +39,33 @@ gulp.task('default', () => {
 Type: `String`          
 Default: ``
 
-Set the remote folder on the S3 bucket
+Set the remote folder on Arweave.
 
 ```javascript
 var options = { uploadPath: 'remote-folder' } // It will upload the 'src' into '/remote-folder'
-gulp.src('./dist/**', {read: false})
-    .pipe(s3(AWS, options));
+gulp.src('./dist/**', {read: true})
+    .pipe(gulpAirweave(arweaveInit, options));
 ```
 
-#### options.headers
+#### `options.tags`
 
-Type: `Object`          
-Default: `{}`
+Set tags for every uploaded file. (If `'Content-Type'` is unspecified, it is determined
+automatically from file extensions.)
 
-Headers to set to each file uploaded to S3
+```
+const options = {};
 
-```javascript
-var options = { 
-  headers: {
-    'Cache-Control': 'max-age=315360000, no-transform, public',
-    'x-amz-acl': 'private'
-  } 
-};
-gulp.src('./dist/**', {read: false})
-    .pipe(s3(AWS, options));
+gulp.src('./testfiles/**', {read: true})
+    .pipe(gulpAirweave(arweaveInit, { tags: {'X-My-Tag', 'zzz'} }));
 ```
 
-#### options.gzippedOnly
+#### `options.encoding`
 
-Type: `Boolean`          
-Default: `false`
+Encoding for uploaded files.
 
-Only upload files with .gz extension, additionally it will remove the .gz suffix on destination filename and set appropriate Content-Type and Content-Encoding headers.
+#### `options.rootFile`
 
-```javascript
-var options = { gzippedOnly: true };
-gulp.src('./dist/**').pipe(gzip())
-    .pipe(s3(AWS, options));
-```
-
-#### options.failOnError
-Type: `Boolean`
-Default: `false`
-
-Throw error if upload to s3 fails.
-
-```javascript
-var options = { failOnError: true };
-gulp.src('./dist/**').pipe(gzip())
-    .pipe(s3(AWS, options));
-```
+The index file (including its full path on the server).
 
 ## License
 
