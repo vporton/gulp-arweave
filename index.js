@@ -73,15 +73,14 @@ module.exports = function (arweaveInit, options) {
       // TODO: Resolve transation IDs asynchronously.
       let idP = uploadFile(file, contentType, uploadPath)
         .then(([transactionId, uploadPath]) => {
-          console.log("Added path.")
-          return [transactionId, uploadPath];
+          this.emit('data', [uploadPath, transactionId]);
+          return [uploadPath, transactionId];
         });
       fileTransactions.push(idP);
     }
     catch(err) { }
   }, async function end() {
     const paths = await Promise.all(fileTransactions);
-    console.log(paths);
 
     // Path Manifest upload
     const pathManifestObj = {
@@ -98,13 +97,13 @@ module.exports = function (arweaveInit, options) {
       cwd: '/',
       base: '/',
       path: '/manifest.json', // unused
-      contents: new Buffer(pathManifest),
+      contents: new Buffer.from(pathManifest), // TODO: encoding
     });
   
     // Upload the manifest:
-    uploadFile(manifestFile, 'application/x.arweave-manifest+json', '/')
+    await uploadFile(manifestFile, 'application/x.arweave-manifest+json', '/')
       .then(transactionId => {
-        this.emit('data', ['/', transactionId])
+        // this.emit('data', ['/', transactionId])
       });
 
     this.emit('end');
