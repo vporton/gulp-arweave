@@ -6,40 +6,34 @@ var gutil = require('gulp-util');
 var mime = require('mime');
 mime.default_type = 'text/plain';
 
-module.exports = function (opts, options) {
+module.exports = function (airweaveInit, options) {
   options = options || {};
 
-  var client = Arweave.init(opts);
-  var waitTime = 0;
-  // var regexGzip = /\.([a-z0-9]{2,})\.gz$/i;
+  var arweave = Arweave.init(airweaveInit);
   var regexGeneral = /\.([a-z0-9]{2,})$/i;
 
   paths = [] // for the Path Manifest
 
-  let key = await arweave.wallets.generate();
-
-  function uploadFile(content, contentType) {
+  async function uploadFile(content, contentType) {
     const transaction = await arweave.createTransaction({
         data: content,
-    }, opts.jwk)
-      .then(() => {
+    }, airweaveInit.jwk)
+      .then(async () => {
         transaction.addTag('Content-Type', contentType);
-        await arweave.transactions.sign(transaction, key);
+        // TODO: more tags
+        await arweave.transactions.sign(transaction, jwk);
         const response = await arweave.transactions.post(transaction);
         if (response.status != 200) {
           gutil.log(gutil.colors.red('  HTTP STATUS:', response.statusCode));
-          finished(err, null);
-          throw new Error('HTTP Status Code: ' + res.statusCode);
+          throw new Error('HTTP Status Code: ' + response.statusCode);
         } else {
           gutil.log(gutil.colors.green('[SUCCESS]') + ' ' + gutil.colors.grey(file.path) + gutil.colors.green(" -> ") + uploadPath);
-          res.resume();
-          finished(null, file);
-          paths.push({uploadPath: {id: transaction.id}}); // FIXME
+          paths.push({uploadPath: {id: transaction.id}});
         }
       })
       .catch(err => {
         gutil.log(gutil.colors.red('[FAILED]', err, file.path + " -> " + uploadPath));
-        finished(err, null);
+        throw err;
       });
   }
 
@@ -51,14 +45,20 @@ module.exports = function (opts, options) {
   
     let contentType;
     // Set content type based on file extension
-    if (!headers['Content-Type'] && regexGeneral.test(uploadPath)) {
+    if (regexGeneral.test(uploadPath)) {
       contentType = mime.lookup(uploadPath);
       if (options.encoding) {
         contentType += '; charset=' + options.encoding;
       }
     }
 
-    uploadFile(file.contents, contentType);
+    try {
+      uploadFile(file.contents, contentType);
+      finished(null, file);
+    }
+    catch(err) {
+      finished(err);
+    }
   });
 
   // Path Manifest upload
@@ -71,5 +71,8 @@ module.exports = function (opts, options) {
     paths: paths,
   }
   const pathManifest = JSON.stringify(pathManifestObj);
-  uploadFile(pathManifest, 'application/x.arweave-manifest+json')
+  try {
+    uploadFile(pathManifest, 'application/x.arweave-manifest+json')
+  }
+  catch(err) { }
 };
