@@ -85,12 +85,12 @@ module.exports = function (arweaveInit, options) {
 
     // Path Manifest upload
     const pathManifestObj = '{' +
-      'manifest:"arweave/paths",' +
-      'version:"0.1.0",' +
+      '"manifest":"arweave/paths",' +
+      '"version":"0.1.0",' +
       // "index": { // TODO
       //   "path": "index.html"
       // },
-      'paths:' + myToJSON(paths) +
+      '"paths":' + myToJSON(paths) +
     '}';
     const pathManifest = pathManifestObj;
     console.log(pathManifest)
