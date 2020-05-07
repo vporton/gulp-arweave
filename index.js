@@ -31,7 +31,7 @@ module.exports = function (arweaveInit, options) {
         await arweave.transactions.sign(transaction, jwk);
         const response = await arweave.transactions.post(transaction);
         if (response.status != 200 && response.status != 208) {
-          gutil.log(gutil.colors.red('  HTTP STATUS:', response.statusCode)); // TODO: Also show the response body
+          gutil.log(gutil.colors.red('  HTTP STATUS:', response.statusCode + " ("+response.data+")"));
           throw new Error('HTTP Status Code: ' + response.statusCode);
         } else {
           gutil.log(gutil.colors.green('[SUCCESS]') + ' ' + gutil.colors.grey(file.path) + gutil.colors.green(" -> ") + uploadPath);
@@ -65,7 +65,6 @@ module.exports = function (arweaveInit, options) {
     }
 
     try {
-      // TODO: Resolve transation IDs asynchronously.
       let pathsP = uploadFile(file, contentType, uploadPath)
         .then(([transactionId, uploadPath]) => {
           this.emit('data', [uploadPath, transactionId]);
@@ -83,13 +82,14 @@ module.exports = function (arweaveInit, options) {
           .join(",") + '}';
     }
 
+    const rootFileSpec =
+      typeof(options.rootFile) != 'undefined' ? '"index":{"path":'+JSON.stringify(options.rootFile)+'},';
+
     // Path Manifest upload
     const pathManifestObj = '{' +
       '"manifest":"arweave/paths",' +
       '"version":"0.1.0",' +
-      // "index": { // TODO
-      //   "path": "index.html"
-      // },
+      rootFileSpec +
       '"paths":' + myToJSON(paths) +
     '}';
     const pathManifest = pathManifestObj;
@@ -98,7 +98,7 @@ module.exports = function (arweaveInit, options) {
       cwd: '/',
       base: '/',
       path: '/manifest.json', // unused
-      contents: new Buffer.from(pathManifest), // TODO: encoding
+      contents: new Buffer.from(pathManifest, 'utf8'),
     });
   
     // Upload the manifest:
