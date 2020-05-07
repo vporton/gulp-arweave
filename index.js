@@ -1,15 +1,22 @@
 'use strict';
 
 var es = require('event-stream');
-const Arweave = require('arweave/node');
+var Arweave = require('arweave/node');
 var gutil = require('gulp-util');
 var mime = require('mime');
+var fs = require('fs');
+var util = require('util');
 mime.default_type = 'text/plain';
 
-module.exports = function (airweaveInit, options) {
+const readFile = util.promisify(fs.readFile);
+
+module.exports = function (arweaveInit, options) {
   options = options || {};
 
-  var arweave = Arweave.init(airweaveInit);
+  const jwkFile = arweaveInit.jwk || process.env.GULP_AIRWEAVE_JWK_FILE;
+  const jwk = JSON.parse(await readFile(jwkFile));
+
+  var arweave = Arweave.init(arweaveInit);
   var regexGeneral = /\.([a-z0-9]{2,})$/i;
 
   let paths = []; // for the Path Manifest
@@ -18,7 +25,7 @@ module.exports = function (airweaveInit, options) {
   async function uploadFile(content, contentType) {
     const transaction = await arweave.createTransaction({
         data: content,
-    }, airweaveInit.jwk)
+    }, jwk)
       .then(async () => {
         transaction.addTag('Content-Type', contentType);
         // TODO: more tags
