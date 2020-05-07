@@ -6,7 +6,6 @@ var Arweave = require('arweave/node');
 var gutil = require('gulp-util');
 var mime = require('mime');
 var fs = require('fs');
-var util = require('util');
 mime.default_type = 'text/plain';
 
 module.exports = function (arweaveInit, options) {
