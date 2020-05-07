@@ -23,7 +23,7 @@ module.exports = function (airweaveInit, options) {
         // TODO: more tags
         await arweave.transactions.sign(transaction, jwk);
         const response = await arweave.transactions.post(transaction);
-        if (response.status != 200) {
+        if (response.status != 200 && response.status != 208) {
           gutil.log(gutil.colors.red('  HTTP STATUS:', response.statusCode));
           throw new Error('HTTP Status Code: ' + response.statusCode);
         } else {
