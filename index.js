@@ -70,7 +70,7 @@ module.exports = function (arweaveInit, options) {
     try {
       let pathsP = uploadFile(file, contentType, uploadPath)
         .then(([uploadPath, transactionId]) => {
-          this.emit('data', [uploadPath, transactionId]);
+          this.emit('data', [(options.urlPrefix || "") + uploadPath, transactionId]);
           return [uploadPath, transactionId];
         });
       fileTransactions.push(pathsP);
@@ -110,7 +110,7 @@ module.exports = function (arweaveInit, options) {
     // Upload the manifest:
     await uploadFile(manifestFile, 'application/x.arweave-manifest+json', '/')
       .then(([uploadPath, transactionId]) => {
-        this.emit('data', ['/', transactionId])
+        this.emit('data', [options.urlPrefix || "", transactionId])
       });
 
     this.emit('end');

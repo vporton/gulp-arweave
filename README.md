@@ -56,8 +56,6 @@ Set tags for every uploaded file. (If `'Content-Type'` is unspecified, it is det
 automatically from file extensions.)
 
 ```
-const options = {};
-
 gulp.src('./testfiles/**', {read: true})
     .pipe(gulpAirweave(arweaveInit, { tags: {'X-My-Tag', 'zzz'} }));
 ```
@@ -74,12 +72,16 @@ The index file (including its full path on the server).
 
 Disable creating the Path Manifest file.
 
-## Misc notes
+#### `options.urlPrefix`
 
-Contrary to the bounty "should return the permanent URL of the asset", I return
-the path, not the full URL, because otherwise it would be impossible to construct
-URL using only the public API of Arweave JS (if initialized from a ready `Arweave`
-object not from `arweaveInit`)
+Prefix to add to output URLs:
+
+```
+const options = { urlPrefix: 'https://arweave.net/' };
+
+gulp.src('./testfiles/**', {read: true})
+    .pipe(gulpAirweave(arweaveInit, options));
+```
 
 ## License
 
