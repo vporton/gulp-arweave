@@ -11,7 +11,7 @@ mime.default_type = 'text/plain';
 module.exports = function (arweaveInit, options) {
   options = options || {};
 
-  const jwkFile = arweaveInit.jwk || process.env.GULP_AIRWEAVE_JWK_FILE;
+  const jwkFile = arweaveInit.jwk || process.env.GULP_ARWEAVE_JWK_FILE;
   if (typeof jwkFile == 'undefined') throw Error("Arweave JWK key is unspecified. Use GULP_AIRWEAVE_JWK_FILE env war.");
   const jwk = JSON.parse(fs.readFileSync(jwkFile));
 
