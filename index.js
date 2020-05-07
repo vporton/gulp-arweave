@@ -1,5 +1,6 @@
 'use strict';
 
+var Vinyl = require('vinyl');
 var es = require('event-stream');
 var Arweave = require('arweave/node');
 var gutil = require('gulp-util');
@@ -48,7 +49,7 @@ module.exports = function (arweaveInit, options) {
       });
   }
 
-  return es.map(function (file, finished) { // FIXME
+  let outputStream = es.map(function (file, finished) { // FIXME
     // Skip processing of directories:
     if (file.isDirectory()) { finished(); return; }
     
@@ -88,15 +89,24 @@ module.exports = function (arweaveInit, options) {
     paths: paths,
   }
   const pathManifest = JSON.stringify(pathManifestObj);
+  var manifestFile = new Vinyl({
+    cwd: '/',
+    base: '/',
+    path: '/manifest.json', // unused
+    contents: new Buffer(pathManifest),
+  });
   try {
-    uploadFile(pathManifest/*FIXME*/, 'application/x.arweave-manifest+json'/*, uploadPath*/)
+    uploadFile(manifestFile, 'application/x.arweave-manifest+json', '/')
+      .then(transactionId => {
+        // finished(null  , [uploadPath, transactionId]);
+        //paths.push(({"": {id: transaction.id}});
+        pathsMap.set("", transactionId);
+        console.log(transactionId)
+      });
   }
   catch(err) { }
 
-  //paths.push(({"": {id: transaction.id}});
-  pathsMap.set("", transaction.id);
-
-  return pathsMap;
+  return outputStream;
 
   // FIXME: Merge will not work for gulp 4. merge-stream should be used.
 };
