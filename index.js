@@ -46,7 +46,7 @@ module.exports = async function (arweaveInit, options) {
       });
   }
 
-  /*return*/ es.map(function (file, finished) { // FIXME
+  return es.map(function (file, finished) { // FIXME
     if (!file.isBuffer()) { finished(null, file); return; }
 
     var uploadPath = file.path.replace(file.base, options.uploadPath || '');
