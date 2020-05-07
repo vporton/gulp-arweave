@@ -89,4 +89,6 @@ module.exports = function (arweaveInit, options) {
   // pathsMap.set("", transaction.id);
 
   // return pathsMap;
+
+  // FIXME: Merge will not work for gulp 4. merge-stream should be used.
 };
