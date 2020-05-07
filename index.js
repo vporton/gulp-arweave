@@ -22,7 +22,7 @@ module.exports = function (arweaveInit, options) {
   var regexGeneral = /\.([a-z0-9]{2,})$/i;
 
   let paths = []; // for the Path Manifest
-  let pathsMap = new Map();
+  let pathsMap = new Map(); // TODO: Remove.
 
   async function uploadFile(file, contentType, uploadPath) {
     return await arweave.createTransaction({
@@ -95,16 +95,22 @@ module.exports = function (arweaveInit, options) {
     path: '/manifest.json', // unused
     contents: new Buffer(pathManifest),
   });
-  try {
-    uploadFile(manifestFile, 'application/x.arweave-manifest+json', '/')
-      .then(transactionId => {
-        // finished(null  , [uploadPath, transactionId]);
-        //paths.push(({"": {id: transaction.id}});
-        pathsMap.set("", transactionId);
-        console.log(transactionId)
-      });
+
+  // Upload the manifest:
+  async function uploadManifest(count, callback) {
+    try {
+      uploadFile(manifestFile, 'application/x.arweave-manifest+json', '/')
+        .then(transactionId => {
+          this.emit('data', ['/', transactionId])
+          callback();
+          //paths.push(({"": {id: transaction.id}});
+          pathsMap.set("", transactionId);
+          console.log(transactionId);
+        });
+    }
+    catch(err) { }
   }
-  catch(err) { }
+  es.readable(uploadManifest);
 
   return outputStream;
 
