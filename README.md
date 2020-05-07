@@ -74,6 +74,13 @@ The index file (including its full path on the server).
 
 Disable creating the Path Manifest file.
 
+## Misc notes
+
+Contrary to the bounty "should return the permanent URL of the asset", I return
+the path, not the full URL, because otherwise it would be impossible to construct
+URL using only the public API of Arweave JS (if initialized from a ready `Arweave`
+object not from `arweaveInit`)
+
 ## License
 
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)
