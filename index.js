@@ -49,11 +49,11 @@ module.exports = function (arweaveInit, options) {
       });
   }
 
-  let outputStream = es.map(function (file, finished) { // FIXME
+  let outputStream = es.through(function write(file) { // FIXME
     // Skip processing of directories:
-    if (file.isDirectory()) { finished(); return; }
+    if (file.isDirectory()) { return; }
     
-    if (!file.isBuffer()) { finished("Only buffer mode is supported."); return; }
+    if (!file.isBuffer()) { throw Error("Only buffer mode is supported."); }
 
     var uploadPath = file.path.replace(file.base, options.uploadPath || '');
     uploadPath = uploadPath.replace(new RegExp('\\\\', 'g'), '/');
@@ -71,14 +71,16 @@ module.exports = function (arweaveInit, options) {
       // TODO: Resolve transation IDs asynchronously.
       uploadFile(file, contentType, uploadPath)
         .then(transactionId => {
-          finished(null, [uploadPath, transactionId]);
+          this.emit('data', [uploadPath, transactionId]);
+          console.log("Added path.")
         });
     }
-    catch(err) {
-      finished(err);
-    }
+    catch(err) { }
+  }, function end() {
+    this.emit('end');
   });
 
+  console.log(paths)
   // Path Manifest upload
   const pathManifestObj = {
     manifest: "arweave/paths",
@@ -89,28 +91,30 @@ module.exports = function (arweaveInit, options) {
     paths: paths,
   }
   const pathManifest = JSON.stringify(pathManifestObj);
-  var manifestFile = new Vinyl({
-    cwd: '/',
-    base: '/',
-    path: '/manifest.json', // unused
-    contents: new Buffer(pathManifest),
-  });
+  // console.log(pathManifest)
+  // var manifestFile = new Vinyl({
+  //   cwd: '/',
+  //   base: '/',
+  //   path: '/manifest.json', // unused
+  //   contents: new Buffer(pathManifest),
+  // });
 
-  // Upload the manifest:
-  async function uploadManifest(count, callback) {
-    try {
-      uploadFile(manifestFile, 'application/x.arweave-manifest+json', '/')
-        .then(transactionId => {
-          this.emit('data', ['/', transactionId])
-          callback();
-          //paths.push(({"": {id: transaction.id}});
-          pathsMap.set("", transactionId);
-          console.log(transactionId);
-        });
-    }
-    catch(err) { }
-  }
-  es.readable(uploadManifest);
+  // // Upload the manifest:
+  // async function uploadManifest(count, callback) {
+  //   try {
+  //     uploadFile(manifestFile, 'application/x.arweave-manifest+json', '/')
+  //       .then(transactionId => {
+  //         this.emit('data', ['/', transactionId])
+  //         callback();
+  //         //paths.push(({"": {id: transaction.id}});
+  //         pathsMap.set("", transactionId);
+  //         console.log(transactionId);
+  //       });
+  //   }
+  //   catch(err) { }
+  //   return this.emit('end');
+  // }
+  // es.readable(uploadManifest);
 
   return outputStream;
 
