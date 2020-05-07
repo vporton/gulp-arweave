@@ -17,17 +17,17 @@ module.exports = function (arweaveInit, options) {
   if (typeof jwkFile == 'undefined') throw Error("Arweave JWK key is unspecified. Use GULP_AIRWEAVE_JWK_FILE env war.");
   const jwk = JSON.parse(fs.readFileSync(jwkFile));
 
-  var arweave = Arweave.init(arweaveInit);
+  var arweave = Arweave.init(arweaveInit); // TODO: Alternatively pass already initialized arweave
   var regexGeneral = /\.([a-z0-9]{2,})$/i;
 
   let paths = []; // for the Path Manifest
   let pathsMap = new Map();
 
-  async function uploadFile(content, contentType) {
+  async function uploadFile(file, contentType, uploadPath) {
     return await arweave.createTransaction({
-        data: content,
+        data: file.contents,
     }, jwk)
-      .then(async () => {
+      .then(async (transaction) => {
         transaction.addTag('Content-Type', contentType);
         // TODO: more tags
         await arweave.transactions.sign(transaction, jwk);
@@ -49,7 +49,9 @@ module.exports = function (arweaveInit, options) {
   }
 
   return es.map(function (file, finished) { // FIXME
-    console.log("path", file.path) // FIXME
+    // Skip processing of directories:
+    if (file.isDirectory()) { finished(); return; }
+    
     if (!file.isBuffer()) { finished("Only buffer mode is supported."); return; }
 
     var uploadPath = file.path.replace(file.base, options.uploadPath || '');
@@ -65,33 +67,33 @@ module.exports = function (arweaveInit, options) {
     }
 
     try {
-      const transactionId = uploadFile(file.contents, contentType);
-      finished(null, transactionId);
+      const transactionId = uploadFile(file, contentType, uploadPath);
+      finished(null, [uploadPath, transactionId]);
     }
     catch(err) {
       finished(err);
     }
   });
 
-  // // Path Manifest upload
-  // const pathManifestObj = {
-  //   manifest: "arweave/paths",
-  //   version: "0.1.0",
-  //   // "index": { // TODO
-  //   //   "path": "index.html"
-  //   // },
-  //   paths: paths,
-  // }
-  // const pathManifest = JSON.stringify(pathManifestObj);
-  // try {
-  //   uploadFile(pathManifest, 'application/x.arweave-manifest+json')
-  // }
-  // catch(err) { }
+  // Path Manifest upload
+  const pathManifestObj = {
+    manifest: "arweave/paths",
+    version: "0.1.0",
+    // "index": { // TODO
+    //   "path": "index.html"
+    // },
+    paths: paths,
+  }
+  const pathManifest = JSON.stringify(pathManifestObj);
+  try {
+    uploadFile(pathManifest/*FIXME*/, 'application/x.arweave-manifest+json'/*, uploadPath*/)
+  }
+  catch(err) { }
 
-  // //paths.push(({"": {id: transaction.id}});
-  // pathsMap.set("", transaction.id);
+  //paths.push(({"": {id: transaction.id}});
+  pathsMap.set("", transaction.id);
 
-  // return pathsMap;
+  return pathsMap;
 
   // FIXME: Merge will not work for gulp 4. merge-stream should be used.
 };
