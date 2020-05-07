@@ -1,5 +1,6 @@
 const gulp = require('gulp');
 const gulpAirweave = require('./index');
+var es = require('event-stream');
 
 const arweaveInit = {
     host: 'arweave.net',
@@ -7,7 +8,16 @@ const arweaveInit = {
     protocol: 'https',
 };
 
-gulp.task('default', () => {
-  gulp.src('./testfiles/**', {read: true}).pipe(gulpAirweave(arweaveInit, {}))
-  //.pipe(gulp.dest('dist'))
+function* iterableify(stream) {
+  yield* es.mapSync(function* (element, finished) { // FIXME
+    yield element;
+    finished();
+  });
+}
+
+gulp.task('default', async () => {
+  let uploads = gulp.src('./testfiles/**', {read: true}).pipe(gulpAirweave(arweaveInit, {}))
+  uploads.pipe(es.writeArray(function (err, array){
+    console.log(array);
+  }));
 });
