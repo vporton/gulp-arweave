@@ -23,7 +23,7 @@ module.exports = function (arweaveInit, options) {
   let pathsMap = new Map();
 
   async function uploadFile(content, contentType) {
-    const transaction = await arweave.createTransaction({
+    return await arweave.createTransaction({
         data: content,
     }, jwk)
       .then(async () => {
@@ -39,6 +39,7 @@ module.exports = function (arweaveInit, options) {
           paths.push({uploadPath: {id: transaction.id}});
           pathsMap.set(uploadPath, transaction.id);
         }
+        return transaction.id;
       })
       .catch(err => {
         gutil.log(gutil.colors.red('[FAILED]', err, file.path + " -> " + uploadPath));
@@ -47,7 +48,7 @@ module.exports = function (arweaveInit, options) {
   }
 
   return es.map(function (file, finished) { // FIXME
-    if (!file.isBuffer()) { finished(null, file); return; }
+    if (!file.isBuffer()) { finished("Only buffer mode is supported."); return; }
 
     var uploadPath = file.path.replace(file.base, options.uploadPath || '');
     uploadPath = uploadPath.replace(new RegExp('\\\\', 'g'), '/');
@@ -62,8 +63,8 @@ module.exports = function (arweaveInit, options) {
     }
 
     try {
-      uploadFile(file.contents, contentType);
-      finished(null, file);
+      const transactionId = uploadFile(file.contents, contentType);
+      finished(null, transactionId);
     }
     catch(err) {
       finished(err);

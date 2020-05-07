@@ -7,5 +7,10 @@ const arweaveInit = {
     protocol: 'https',
 };
 
-gulp.src('testfiles/**', {read: false})
-    .pipe(gulpAirweave(arweaveInit, {}));
+// gulp.src('testfiles/**', {read: false})
+//     .pipe(gulpAirweave(arweaveInit, {}));
+
+console.log(
+    gulp.src('testfiles/**', {read: false})
+        gulpAirweave(arweaveInit, {})
+);
