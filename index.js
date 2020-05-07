@@ -18,7 +18,8 @@ module.exports = function (arweaveInit, options) {
   if (typeof jwkFile == 'undefined') throw Error("Arweave JWK key is unspecified. Use GULP_AIRWEAVE_JWK_FILE env war.");
   const jwk = JSON.parse(fs.readFileSync(jwkFile));
 
-  var arweave = Arweave.init(arweaveInit); // TODO: Alternatively pass already initialized arweave
+  var arweave = arweaveInit instanceof Arweave ? arweaveInit : Arweave.init(arweaveInit);
+
   var regexGeneral = /\.([a-z0-9]{2,})$/i;
 
   async function uploadFile(file, contentType, uploadPath) {
@@ -27,7 +28,11 @@ module.exports = function (arweaveInit, options) {
     }, jwk)
       .then(async (transaction) => {
         transaction.addTag('Content-Type', contentType);
-        // TODO: more tags
+        if (options.tags) {
+          for (let [key, value] of Object.entries(options.tags)) {
+            transaction.addTag(key, value);
+          }
+        }
         await arweave.transactions.sign(transaction, jwk);
         const response = await arweave.transactions.post(transaction);
         if (response.status != 200 && response.status != 208) {
@@ -83,7 +88,7 @@ module.exports = function (arweaveInit, options) {
     }
 
     const rootFileSpec =
-      typeof(options.rootFile) != 'undefined' ? '"index":{"path":'+JSON.stringify(options.rootFile)+'},';
+      typeof(options.rootFile) != 'undefined' ? '"index":{"path":'+JSON.stringify(options.rootFile)+'},' : "";
 
     // Path Manifest upload
     const pathManifestObj = '{' +
