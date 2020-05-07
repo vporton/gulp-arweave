@@ -1,4 +1,11 @@
+const gulp = require('gulp');
 const gulpAirweave = require('../index');
 
-gulp.src('../testfiles/**', {read: false})
-    .pipe(gulpAirweave(AWS, options));
+const arweaveInit = {
+    host: 'arweave.net',
+    port: 443,
+    protocol: 'https',
+};
+
+gulp.src('testfiles/**', {read: false})
+    .pipe(gulpAirweave(arweaveInit, {}));

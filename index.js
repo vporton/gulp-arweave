@@ -10,7 +10,7 @@ mime.default_type = 'text/plain';
 
 const readFile = util.promisify(fs.readFile);
 
-module.exports = function (arweaveInit, options) {
+module.exports = async function (arweaveInit, options) {
   options = options || {};
 
   const jwkFile = arweaveInit.jwk || process.env.GULP_AIRWEAVE_JWK_FILE;
