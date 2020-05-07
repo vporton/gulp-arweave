@@ -12,7 +12,7 @@ module.exports = function (arweaveInit, options) {
   options = options || {};
 
   const jwkFile = arweaveInit.jwk || process.env.GULP_ARWEAVE_JWK_FILE;
-  if (typeof jwkFile == 'undefined') throw Error("Arweave JWK key is unspecified. Use GULP_AIRWEAVE_JWK_FILE env war.");
+  if (typeof jwkFile == 'undefined') throw Error("Arweave JWK key is unspecified. Use GULP_AIRWEAVE_JWK_FILE env var.");
   const jwk = JSON.parse(fs.readFileSync(jwkFile));
 
   var arweave = arweaveInit instanceof Arweave ? arweaveInit : Arweave.init(arweaveInit);
